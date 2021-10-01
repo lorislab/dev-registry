@@ -20,9 +20,7 @@ jobs:
         with:
           version: v1.40
       - name: Build
-        run: |
-            echo "CGO_ENABLED=0" >> $GITHUB_ENV
-            go build .
+        run: CGO_ENABLED=0 go build .
       - name: Docker login
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
       - name: Publish docker
