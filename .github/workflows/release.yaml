@@ -24,15 +24,7 @@ jobs:
           version: v1.40
       - name: Build
         run: CGO_ENABLED=0 go build .
-      - name: Tests.
-        run: go test
-  docker:
-    name: Release docker image
-    needs: release
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Login
+      - name: Docker login
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
       - name: Publish docker
         run: |
