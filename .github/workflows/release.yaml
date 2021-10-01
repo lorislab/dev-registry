@@ -1,0 +1,42 @@
+name: Release
+on:
+  push:
+    branches-ignore:
+      - '**'
+    tags:
+      - '**'
+jobs:
+  release:
+    name: Release on GitHub
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v2
+        with:
+          version: v1.40
+      - name: Build
+        run: CGO_ENABLED=0 go build .
+      - name: Tests.
+        run: go test
+  docker:
+    name: Release docker image
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Login
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: Publish docker
+        run: |
+          VERSION=$(echo "$GITHUB_REF" | sed -e 's,.*/\(.*\),\1,')
+          IMAGE_ID=ghcr.io/$GITHUB_REPOSITORY:$VERSION
+          docker build -t $IMAGE_ID -f Dockerfile .
+          docker push $IMAGE_ID
