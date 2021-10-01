@@ -24,8 +24,8 @@ jobs:
       - name: Tests.
         run: go test
   docker:
-    name: Release docker image
-    needs: release
+    name: Push docker image
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
